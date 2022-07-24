@@ -203,19 +203,9 @@ class TransformerMemNetModel(TorchGeneratorModel):
 
     def output(self, decoder_output, mask, context_h_mean):
         score1 = F.linear(decoder_output, self.embeddings.weight).masked_fill(self.dialogue_mask.bool(), -1000000.0)
-        # score1 = F.linear(decoder_output, self.embeddings.weight)
-        # position = self.position[:decoder_output.size(1)].unsqueeze(0).repeat(decoder_output.size(0), 1)
-        # position_ = self.position_embeddings(position)
-        # context_h_mean = context_h_mean.unsqueeze(1).repeat(1, decoder_output.size(1), 1) + position_
-        # # context_h_mean = context_h_mean.unsqueeze(1).repeat(1, decoder_output.size(1), 1)
-        # score2 = self.copy_net_abstract(context_h_mean).masked_fill(mask.unsqueeze(1).bool(), -1000000.0)
         copy_latent = self.dim_align(self.user_representation.unsqueeze(1).repeat(1, decoder_output.size(1), 1))
         score2 = self.copy_net_kg(copy_latent).masked_fill(self.kg_mask.bool(), -1000000.0)
-        # score3 = self.copy_net_kg(context_h_mean.unsqueeze(1).repeat(1, decoder_output.size(1), 1)).\
-        #     masked_fill(self.kg_mask.bool(), -1000000.0)
         dict_len = score1.size(2)
-        # score = F.log_softmax(torch.cat([score1, score2], dim=2), 2)
-        # score = F.softmax(torch.cat([score1, score2, score3], dim=2), 2)
         score = F.softmax(torch.cat([score1, score2], dim=2), 2)
         score1 = score[:, :, :dict_len]
         score2 = score[:, :, dict_len:]
@@ -223,38 +213,6 @@ class TransformerMemNetModel(TorchGeneratorModel):
         # score2 = F.softmax(score2, dim=2)
         score_total = score1 + score2
         score_logits = torch.log(score_total + 10**-10)
-        # Only for debug
-        sentence_score1 = score1.max(dim=2)[0].cpu().detach().numpy()
-        sentence_score2 = score2.max(dim=2)[0].cpu().detach().numpy()
-        sentence_score = score_total.max(dim=2)[0].cpu().detach().numpy()
-        sentence_pred1 = score1.max(dim=2)[1].cpu().detach().numpy()
-        sentence_pred2 = score2.max(dim=2)[1].cpu().detach().numpy()
-        sentence_pred = score_total.max(dim=2)[1].cpu().detach().numpy()
-        sentence_pred_w1 = []
-        sentence_pred_w2 = []
-        sentence_pred_w = []
-        for sentence in score1.max(dim=2)[1].cpu().detach().numpy():
-            temp = []
-            for word in sentence:
-                temp.append(self.dict.ind2tok[word])
-            sentence_pred_w1.append(temp)
-        for sentence in score2.max(dim=2)[1].cpu().detach().numpy():
-            temp = []
-            for word in sentence:
-                temp.append(self.dict.ind2tok[word])
-            sentence_pred_w2.append(temp)
-        for sentence in score_total.max(dim=2)[1].cpu().detach().numpy():
-            temp = []
-            for word in sentence:
-                temp.append(self.dict.ind2tok[word])
-            sentence_pred_w.append(temp)
-        mask_word = []
-        for b in mask.cpu().detach().numpy():
-            temp = []
-            for i, v in enumerate(b):
-                if v == 0:
-                    temp.append(self.dict.ind2tok[i])
-            mask_word.append(temp)
 
         return score_logits
         # return score_total

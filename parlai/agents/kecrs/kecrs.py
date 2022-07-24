@@ -7,15 +7,9 @@ from collections import defaultdict
 import math
 import numpy as np
 import torch
-from torch import nn
-from torch.nn import functional as F
-from sklearn.feature_extraction.text import TfidfVectorizer
-from gensim.models.doc2vec import TaggedDocument, Doc2Vec
-import nltk
 
 from parlai.core.torch_agent import Output, TorchAgent, Batch
 from parlai.core.utils import round_sigfigs
-from sklearn import metrics
 
 from .modules import KECRS
 

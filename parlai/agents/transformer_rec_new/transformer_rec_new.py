@@ -2,10 +2,7 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
-from parlai.core.agents import Agent
 from parlai.core.utils import warn_once, padded_tensor, round_sigfigs
-from parlai.core.utils import padded_3d
-from parlai.core.torch_ranker_agent import TorchRankerAgent
 from parlai.core.torch_generator_agent import TorchGeneratorAgent
 from .modules import TransformerMemNetModel, TransformerCopyNetModel
 
@@ -233,13 +230,13 @@ class TransformerRecGeneratorAgent(TorchGeneratorAgent):
             m['accuracy'] = self.metrics["accuracy"] / self.metrics["num_pre"]
         if not self.is_training:
             m['dist1'], m['dist2'], m['dist3'], m['dist4'], m['dist5'] = self.distinct_metrics()
-            with open("./test_output_"+self.model_type+self.output_suffix, "w", encoding="utf-8") as f:
+            with open("./test_output_"+self.model_type+"_"+self.output_suffix, "w", encoding="utf-8") as f:
                 for output in self.valid_output:
                     f.write(output + "\n")
-            with open("./test_input_"+self.model_type+self.output_suffix, "w", encoding="utf-8") as f:
+            with open("./test_input_"+self.model_type+"_"+self.output_suffix, "w", encoding="utf-8") as f:
                 for output in self.valid_input:
                     f.write(output+"\n")
-            with open("./test_ground_truth_"+self.model_type+self.output_suffix, "w", encoding="utf-8") as f:
+            with open("./test_ground_truth_"+self.model_type+"_"+self.output_suffix, "w", encoding="utf-8") as f:
                 for output in self.valid_ground_truth:
                     f.write(output+"\n")
             self.valid_output = []
