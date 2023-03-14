@@ -14,7 +14,7 @@ from parlai.core.utils import round_sigfigs
 from .modules import KECRS
 
 
-class KECRSAgent(TorchAgent):
+class KecrsAgent(TorchAgent):
     @classmethod
     def add_cmdline_args(cls, argparser):
         """Add command-line arguments specifically for this agent."""
